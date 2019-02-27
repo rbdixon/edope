@@ -6,7 +6,6 @@ from collections import defaultdict
 from usbq.engine import USBQEngine
 from usbq.pm import pm, enable_plugins
 from usbq.hookspec import hookimpl
-from usbq.hookspec import hookimpl
 
 from .ant_proto import ANTMessage
 from .ant_util import is_ant, has_payload

@@ -10,6 +10,7 @@ import usbq.opts
 from .log import configure_logging
 from .sniff import do_sniff
 from .monitor import do_monitor
+from .epo import do_epo
 
 log = logging.getLogger(__name__)
 
@@ -45,6 +46,43 @@ def monitor(ctx, *args, **kwargs):
     'Monitor fitness telemetry sent Zwift communications.'
     log.info('Starting monitor')
     do_monitor(ctx.params)
+
+
+@main.command()
+@usbq.opts.add_options(usbq.opts.network_options)
+@usbq.opts.add_options(usbq.opts.pcap_options)
+@click.option(
+    '--power-boost', default=2, type=float, help='Multiply your power by a factor.'
+)
+@click.option(
+    '--peak-power-limit',
+    default=6.95,
+    type=float,
+    help='Do not exceed this watt/kg level or they will know you are cheating.',
+)
+@click.option(
+    '--weight',
+    default=84,
+    type=float,
+    help='Your in-game mass (kg) used for watt/kg calculations.',
+)
+@click.option(
+    '--flat/--no-flat',
+    is_flag=True,
+    default=True,
+    help='Make the world flat just for you.',
+)
+@click.option(
+    '--cruise-control/--no-cruise-control',
+    is_flag=True,
+    default=True,
+    help='Sit back and relax.',
+)
+@click.pass_context
+def epo(ctx, *args, **kwargs):
+    'Sustain performance with less effort and more guilt.'
+    log.info('Starting EPO mode')
+    do_epo(ctx.params)
 
 
 if __name__ == '__main__':

@@ -16,4 +16,10 @@ def usbq_declare_plugins():
             mod='edope.monitor',
             clsname='FitnessMonitor',
         ),
+        'epo': USBQPluginDef(
+            name='epo',
+            desc='Dope your way to 7 cool yellow shirts',
+            mod='edope.epo',
+            clsname='EPOMode',
+        ),
     }
