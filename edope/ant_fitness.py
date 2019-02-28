@@ -1,6 +1,6 @@
 import logging
 from scapy.all import *
-from .ant_common import PageOptionalExtended
+from .ant_common import OptionalExtended
 
 log = logging.getLogger(__name__)
 
@@ -44,7 +44,7 @@ class TSBField(Field):
         return val << 4
 
 
-class FitnessPayload(PageOptionalExtended):
+class FitnessPayload(OptionalExtended):
     fields_desc = (
         [ByteField('data_page_number', None)]
         + [

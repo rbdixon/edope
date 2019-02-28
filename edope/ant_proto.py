@@ -13,6 +13,7 @@ __all__ = ['ANTMessage', 'ant_each', 'ant_map']
 
 log = logging.getLogger(__name__)
 
+DEVICE_TYPE_SCAN = 0
 MSG_ID_CLS = {}
 
 # Reference section 9.3: ANT Message Summary
@@ -27,13 +28,16 @@ _MSG_ID_CODE = {
     0x46: 'SET_NETWORK_KEY',
     0x47: 'TRANSMIT_POWER',
     0x4A: 'RESET_SYSTEM',
+    0x4B: 'OPEN_CHANNEL',
+    0x4C: 'CLOSE_CHANNEL',
     0x4D: 'REQUEST_MESSAGE',
     0x4E: 'BROADCAST_DATA',
     0x4F: 'ACKNOWLEDGE_DATA',
     0xC6: 'UNDOCUMENTED',
-    0x51: 'CHANNEL_ID',
+    0x51: 'SET_CHANNEL_ID',
     0x61: 'DEVICE_SERIAL_NUMBER',
     0x63: 'LOW_PRIORITY_SEARCH_TIMEOUT',
+    0x66: 'ENABLE_EXTENDED_MSGS',
     0x6F: 'STARTUP_MESSAGE',
 }
 MSG_ID_CODE = {key: f'{value} (0x{key:02x})' for key, value in _MSG_ID_CODE.items()}
@@ -86,7 +90,7 @@ class ANTPayload(Packet):
     _from = None
 
     # Intentionally shared across all instances
-    _channels = {}
+    _channels = {0: DEVICE_TYPE_SCAN}
 
     def __init_subclass__(cls, **kwargs):
 
@@ -183,13 +187,25 @@ class TransmitPower(ANTPayload):
 
 
 class ResetSystem(ANTPayload):
-    _msg_id = 0x4a
+    _msg_id = 0x4A
     _from = HOST
     fields_desc = [ByteField('filler', 0)]
 
 
+class OpenChannel(ANTPayload):
+    _msg_id = 0x4B
+    _from = HOST
+    fields_desc = [ByteField('channel_number', 0)]
+
+
+class CloseChannel(ANTPayload):
+    _msg_id = 0x4C
+    _from = HOST
+    fields_desc = [ByteField('channel_number', 0)]
+
+
 class RequestMessage(ANTPayload):
-    _msg_id = 0x4d
+    _msg_id = 0x4D
     _from = HOST
     fields_desc = [
         ByteField('channel_number', 0),
@@ -199,13 +215,22 @@ class RequestMessage(ANTPayload):
     ]
 
 
+class ScanBroadcastData(OptionalExtended):
+    'Scanned broadcast payloads'
+
+    fields_desc = [
+        FieldListField('data', None, XByteField('x', 0), count_from=lambda p: 8)
+    ]
+
+
 class BroadcastData(ANTPayload):
-    _msg_id = 0x4e
+    _msg_id = 0x4E
     _from = BOTH
 
     fields_desc = [ByteField('channel_number', 0)]
 
     _dtypes = {
+        DEVICE_TYPE_SCAN: ScanBroadcastData,
         DEVICE_TYPE_HRM: HRMPayload,
         DEVICE_TYPE_CADENCE: CadencePayload,
         DEVICE_TYPE_FITNESS: FitnessPayload,
@@ -229,7 +254,7 @@ class BroadcastData(ANTPayload):
 
 
 class AcknowledgeData(ANTPayload):
-    _msg_id = 0x4f
+    _msg_id = 0x4F
     _from = BOTH
     fields_desc = [ByteField('channel_number', 0)]
 
@@ -258,7 +283,7 @@ class SetChannelID(ANTPayload):
     fields_desc = [
         ByteField('channel_number', 0),
         XShortField('device_number', 0),
-        ByteField('device_type', 0),
+        ByteEnumField('device_type', 0, ENUM_DEVICE_TYPE),
         ByteField('transmission_type', 0),
     ]
 
@@ -267,7 +292,7 @@ class SetChannelID(ANTPayload):
 
         if self.channel_number not in self._channels:
             log.info(
-                f'Registering new channel {self.channel_number} with device type {self.device_type}'
+                f'Registering new channel {self.channel_number} with device type {self.device_type} and device number {self.device_number}'
             )
             self._channels[self.channel_number] = self.device_type
 
@@ -312,6 +337,16 @@ class StartupMessage(ANTPayload):
                 'HARDWARE_RESET_LINE',
             ],
         )
+    ]
+
+
+class EnableExtMsgs(ANTPayload):
+    _msg_id = 0x66
+    _from = HOST
+
+    fields_desc = [
+        XByteField('filler', 0),
+        ByteEnumField('enable', 0, {0x0: 'disabled', 0x1: 'enabled'}),
     ]
 
 
@@ -396,7 +431,7 @@ class ANTMessage(Packet):
             pkt = args[0]
             msg_id = pkt[2]
             channel = pkt[3]
-            if msg_id in [0x4e, 0x4f] and device_type is not None and device_type != 0:
+            if msg_id in [0x4E, 0x4F] and device_type is not None and device_type != 0:
                 ANTPayload._channels[channel] = device_type
 
         super().__init__(*args, **kwargs)
@@ -421,7 +456,6 @@ class ANTMessage(Packet):
         # assert self.checksum != data[-1], f'Checksum data includes checksum: {data}'
         for byte in data:
             cs = cs ^ byte
-        log.debug(f'checksum data: {data} => 0x{cs:02x}')
         return cs
 
     def post_build(self, pkt, pay):

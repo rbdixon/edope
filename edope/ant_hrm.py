@@ -1,6 +1,6 @@
 import logging
 from scapy.all import Packet, BitField, FieldListField, ByteField, XByteField
-from .ant_common import PageOptionalExtended
+from .ant_common import OptionalExtended
 
 log = logging.getLogger(__name__)
 
@@ -9,7 +9,7 @@ DEVICE_TYPE_HRM = 120
 __all__ = ['DEVICE_TYPE_HRM', 'HRMPayload']
 
 
-class HRMPayload(PageOptionalExtended):
+class HRMPayload(OptionalExtended):
     fields_desc = [
         BitField('page_change_toggle', 0, 1),
         BitField('data_page_number', None, 7),
