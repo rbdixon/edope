@@ -1,17 +1,20 @@
 '''Sniffer using USBQ to intercept ANT+ communications'''
+import logging
+from pathlib import Path
 
 import attr
-import logging
 import usbq.opts
-
-from pathlib import Path
+from scapy.all import raw
 from usbq.engine import USBQEngine
-from usbq.pm import pm, enable_plugins
 from usbq.hookspec import hookimpl
-from usbq.usbmitm_proto import USBMessageHost, USBMessageDevice
-from scapy.all import hexdump, raw
+from usbq.pm import enable_plugins
+from usbq.pm import pm
+from usbq.usbmitm_proto import USBMessageDevice
+from usbq.usbmitm_proto import USBMessageHost
 
-from .ant_proto import ANTMessage, ANTPayload, BroadcastData
+from .ant_proto import ANTMessage
+from .ant_proto import ANTPayload
+from .ant_proto import BroadcastData
 from .ant_util import is_ant
 
 log = logging.getLogger(__name__)

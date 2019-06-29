@@ -1,13 +1,10 @@
-from scapy.all import (
-    XByteField,
-    FieldListField,
-    Packet,
-    XShortField,
-    ByteEnumField,
-    ByteField,
-    BitEnumField,
-    BitField,
-)
+from scapy.all import BitEnumField
+from scapy.all import BitField
+from scapy.all import ByteEnumField
+from scapy.all import FieldListField
+from scapy.all import Packet
+from scapy.all import XByteField
+from scapy.all import XShortField
 
 __all__ = ['Padding', 'ExtendedBroadcastData', 'OptionalExtended', 'ENUM_DEVICE_TYPE']
 

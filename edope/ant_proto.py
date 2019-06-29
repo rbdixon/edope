@@ -1,13 +1,29 @@
 import logging
-
 from types import MethodType
-from scapy.all import *
 
-from .ant_common import *
-from .ant_hrm import *
-from .ant_cadence import *
-from .ant_fitness import *
-from .ant_util import has_payload
+from scapy.all import ByteEnumField
+from scapy.all import ByteField
+from scapy.all import ConditionalField
+from scapy.all import Field
+from scapy.all import FieldListField
+from scapy.all import FlagsField
+from scapy.all import lhex
+from scapy.all import Packet
+from scapy.all import ShortField
+from scapy.all import struct
+from scapy.all import XByteEnumField
+from scapy.all import XByteField
+from scapy.all import XShortField
+
+from .ant_cadence import CadencePayload
+from .ant_cadence import DEVICE_TYPE_CADENCE
+from .ant_common import ENUM_DEVICE_TYPE
+from .ant_common import OptionalExtended
+from .ant_fitness import DEVICE_TYPE_FITNESS
+from .ant_fitness import FitnessControlPage
+from .ant_fitness import FitnessPayload
+from .ant_hrm import DEVICE_TYPE_HRM
+from .ant_hrm import HRMPayload
 
 __all__ = ['ANTMessage', 'ant_each', 'ant_map']
 

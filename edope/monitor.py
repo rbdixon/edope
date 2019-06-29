@@ -1,17 +1,20 @@
 import logging
+from collections import defaultdict
+
 import attr
 import usbq.opts
-
-from collections import defaultdict
 from usbq.engine import USBQEngine
-from usbq.pm import pm, enable_plugins
 from usbq.hookspec import hookimpl
+from usbq.pm import enable_plugins
+from usbq.pm import pm
 
-from .ant_proto import ANTMessage
-from .ant_util import is_ant, has_payload
-from .ant_fitness import FitnessPayload, FitnessControlPage
-from .ant_hrm import HRMPayload
 from .ant_cadence import CadencePayload
+from .ant_fitness import FitnessControlPage
+from .ant_fitness import FitnessPayload
+from .ant_hrm import HRMPayload
+from .ant_proto import ANTMessage
+from .ant_util import has_payload
+from .ant_util import is_ant
 
 __all__ = ['FitnessMonitor', 'do_monitor']
 

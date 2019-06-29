@@ -1,6 +1,9 @@
 import pytest
 from scapy.all import Packet
-from edope.ant_fitness import InstantPowerField, TSBField, FitnessControlPage
+
+from edope.ant_fitness import FitnessControlPage
+from edope.ant_fitness import InstantPowerField
+from edope.ant_fitness import TSBField
 from edope.ant_proto import ANTMessage
 
 

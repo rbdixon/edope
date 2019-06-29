@@ -1,5 +1,17 @@
 import logging
-from scapy.all import *
+
+from scapy.all import BitEnumField
+from scapy.all import BitField
+from scapy.all import ByteEnumField
+from scapy.all import ByteField
+from scapy.all import ConditionalField
+from scapy.all import Field
+from scapy.all import FieldListField
+from scapy.all import LEIntField
+from scapy.all import LEShortField
+from scapy.all import Packet
+from scapy.all import struct
+
 from .ant_common import OptionalExtended
 
 log = logging.getLogger(__name__)

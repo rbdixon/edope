@@ -1,18 +1,20 @@
-import attr
 import logging
-import usbq.opts
 import random
-
 from collections import deque
-from usbq.engine import USBQEngine
-from usbq.pm import pm, enable_plugins
-from usbq.hookspec import hookimpl
 
-from .ant_proto import ANTMessage, ant_map
-from .ant_util import is_ant, has_payload
-from .ant_fitness import FitnessPayload, FitnessControlPage
+import attr
+import usbq.opts
+from usbq.engine import USBQEngine
+from usbq.hookspec import hookimpl
+from usbq.pm import enable_plugins
+from usbq.pm import pm
+
+from .ant_fitness import FitnessControlPage
+from .ant_fitness import FitnessPayload
 from .ant_hrm import HRMPayload
-from .ant_cadence import CadencePayload
+from .ant_proto import ant_map
+from .ant_util import has_payload
+from .ant_util import is_ant
 
 log = logging.getLogger(__name__)
 

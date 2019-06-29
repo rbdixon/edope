@@ -1,7 +1,9 @@
+from math import ceil
+from math import floor
+
 import pytest
 
 from edope.epo import LastVal
-from math import floor, ceil
 
 
 @pytest.mark.parametrize(

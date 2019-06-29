@@ -1,4 +1,5 @@
-from usbq.hookspec import hookimpl, USBQPluginDef
+from usbq.hookspec import hookimpl
+from usbq.hookspec import USBQPluginDef
 
 
 @hookimpl

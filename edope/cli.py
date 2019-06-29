@@ -1,16 +1,15 @@
 # -*- coding: utf-8 -*-
-
 '''Console script for edope.'''
-import sys
-import click
 import logging
+import sys
 
+import click
 import usbq.opts
 
-from .log import configure_logging
-from .sniff import do_sniff
-from .monitor import do_monitor
 from .epo import do_epo
+from .log import configure_logging
+from .monitor import do_monitor
+from .sniff import do_sniff
 
 log = logging.getLogger(__name__)
 

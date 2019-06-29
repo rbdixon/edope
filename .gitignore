@@ -103,3 +103,4 @@ ENV/
 ant_samples.py
 usb.pcap
 usbq_hooks.py
+pip-wheel-metadata/

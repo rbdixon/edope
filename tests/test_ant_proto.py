@@ -1,20 +1,16 @@
 import pytest
-
-from scapy.all import *
-from edope.ant_common import CS
-from edope.ant_proto import (
-    ANTMessage,
-    ANTPayload,
-    BroadcastData,
-    UndefinedBroadcastData,
-    ant_each,
-    ant_map,
-)
-from edope.ant_fitness import *
-from edope.ant_hrm import *
-from edope.ant_util import has_payload
+from scapy.all import hexdump
+from scapy.all import raw
 
 from ant_samples import TEST_DATA
+from edope.ant_fitness import FitnessPayload
+from edope.ant_hrm import HRMPayload
+from edope.ant_proto import ant_map
+from edope.ant_proto import ANTMessage
+from edope.ant_proto import ANTPayload
+from edope.ant_proto import BroadcastData
+from edope.ant_proto import UndefinedBroadcastData
+from edope.ant_util import has_payload
 
 DEVICE = {17: 'fitness', 120: 'hrm', 122: 'cadence'}
 
@@ -126,4 +122,3 @@ def test_triple_ant(msg):
 
     assert res == msg
     assert count == 3
-

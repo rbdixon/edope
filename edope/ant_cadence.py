@@ -1,12 +1,10 @@
 import logging
-from scapy.all import (
-    Packet,
-    BitField,
-    FieldListField,
-    ByteField,
-    XByteField,
-    LEShortField,
-)
+
+from scapy.all import BitField
+from scapy.all import FieldListField
+from scapy.all import LEShortField
+from scapy.all import Packet
+from scapy.all import XByteField
 
 log = logging.getLogger(__name__)
 
