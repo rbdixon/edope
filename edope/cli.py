@@ -7,6 +7,7 @@ import click
 import click_config_file
 import usbq.opts
 from usbq.pm import AVAILABLE_PLUGINS
+from usbq.pm import enable_tracing
 
 from . import __version__
 from .epo import do_epo
@@ -20,9 +21,10 @@ log = logging.getLogger(__name__)
 
 @click.group(invoke_without_command=True)
 @click.option('--debug', is_flag=True, default=False, help='Enable debugging.')
+@click.option('--trace', is_flag=True, default=False, help='Trace plugins.')
 @click.pass_context
 @click_config_file.configuration_option(cmd_name='edope', config_file_name='edope.cfg')
-def main(ctx, debug):
+def main(ctx, debug, trace):
     'eSports Leet Automatic Networked Cheating Enhancement (LANCE)'
 
     if ctx.invoked_subcommand is None:
@@ -32,11 +34,13 @@ def main(ctx, debug):
         for pd in sorted(AVAILABLE_PLUGINS.values(), key=lambda pd: pd.name):
             click.echo(f'- {pd.name}: {pd.desc}')
 
+    if trace:
+        enable_tracing()
+
     if debug:
         configure_logging(level=logging.DEBUG)
     else:
         configure_logging(level=logging.INFO)
-    return 0
 
 
 @main.command()
@@ -72,7 +76,7 @@ def monitor(ctx, *args, **kwargs):
     help='Do not exceed this watt/kg level or they will know you are cheating.',
 )
 @click.option(
-    '--weight',
+    '--mass',
     default=84,
     type=float,
     help='Your in-game mass (kg) used for watt/kg calculations.',
@@ -100,7 +104,7 @@ def epo(ctx, *args, **kwargs):
     help='Do not exceed this watt/kg level or they will know you are cheating.',
 )
 @click.option(
-    '--weight',
+    '--mass',
     default=84,
     type=float,
     help='Your in-game mass (kg) used for watt/kg calculations.',

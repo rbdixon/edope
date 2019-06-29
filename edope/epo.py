@@ -20,7 +20,7 @@ __all__ = ['do_epo']
 
 @attr.s(cmp=False)
 class EPOMode:
-    weight = attr.ib(converter=int)
+    mass = attr.ib(converter=int)
     power_boost = attr.ib(converter=float)
     peak_power_limit = attr.ib(converter=float)
     flat = attr.ib(converter=bool, default=True)
@@ -43,7 +43,7 @@ class EPOMode:
     def enforce_peak_power_limit(self, ant):
         if has_payload(ant, FitnessPayload) and self.peak_power_limit > 0:
             if ant[FitnessPayload].data_page_number == 25:
-                limit = int(self.weight * self.peak_power_limit)
+                limit = int(self.mass * self.peak_power_limit)
 
                 if ant[FitnessPayload].instant_power > limit:
                     log.warning(
@@ -85,7 +85,7 @@ def do_epo(params):
         (
             'epo',
             {
-                'weight': params['weight'],
+                'mass': params['mass'],
                 'power_boost': params['power_boost'],
                 'peak_power_limit': params['peak_power_limit'],
                 'flat': params['flat'],
