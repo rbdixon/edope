@@ -9,6 +9,7 @@ with open('README.md') as readme_file:
 
 requirements = [
     'Click>=6.0',
+    'click-config-file',
     'attrs',
     'pyusb>=1.0a2',
     'python-statemachine',

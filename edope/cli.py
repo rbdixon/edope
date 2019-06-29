@@ -4,6 +4,7 @@ import logging
 import sys
 
 import click
+import click_config_file
 import usbq.opts
 
 from .epo import do_epo
@@ -17,6 +18,7 @@ log = logging.getLogger(__name__)
 @click.group(invoke_without_command=True)
 @click.option('--debug', is_flag=True, default=False, help='Enable debugging.')
 @click.pass_context
+@click_config_file.configuration_option(cmd_name='edope', config_file_name='edope.cfg')
 def main(ctx, debug):
     'eSports Leet Automatic Networked Cheating Enhancement (LANCE)'
 
@@ -71,12 +73,6 @@ def monitor(ctx, *args, **kwargs):
     default=True,
     help='Make the world flat just for you.',
 )
-@click.option(
-    '--cruise-control/--no-cruise-control',
-    is_flag=True,
-    default=True,
-    help='Sit back and relax.',
-)
 @click.pass_context
 def epo(ctx, *args, **kwargs):
     'Sustain performance with less effort and more guilt.'
@@ -85,4 +81,4 @@ def epo(ctx, *args, **kwargs):
 
 
 if __name__ == '__main__':
-    sys.exit(main(auto_envvar_prefix='EDOPE'))  # pragma: no cover
+    sys.exit(main())  # pragma: no cover
