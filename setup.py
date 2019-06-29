@@ -7,7 +7,14 @@ from setuptools import setup
 with open('README.md') as readme_file:
     readme = readme_file.read()
 
-requirements = ['Click>=6.0', 'attrs', 'pyusb>=1.0a2', 'python-statemachine', 'usbq']
+requirements = [
+    'Click>=6.0',
+    'attrs',
+    'pyusb>=1.0a2',
+    'python-statemachine',
+    'usbq',
+    'pygame',
+]
 
 setup_requirements = ['pytest-runner']
 
