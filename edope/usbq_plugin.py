@@ -23,4 +23,10 @@ def usbq_declare_plugins():
             mod='edope.epo',
             clsname='EPOMode',
         ),
+        'slacker': USBQPluginDef(
+            name='slacker',
+            desc='Give your thumbs the workout they deserve!',
+            mod='edope.slacker',
+            clsname='SlackerMode',
+        ),
     }
