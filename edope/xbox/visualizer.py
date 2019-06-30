@@ -1,3 +1,8 @@
+'''
+Thanks, Jon Cooper!
+
+https://github.com/joncoop/pygame-xbox360controller/blob/master/visualizer.py
+'''
 import attr
 import pygame
 
@@ -16,25 +21,19 @@ GREY = (175, 175, 175)
 
 @attr.s
 class Visualizer:
-    #: XBox controller
-    _controller = attr.ib()
-
     def __attrs_post_init__(self):
         size = [600, 670]
         self._screen = pygame.display.set_mode(size)
-        pygame.display.set_caption('eDope Controller')
+        pygame.display.set_caption('edope controller')
 
     def display_text(self, text, x, y):
         my_font = pygame.font.Font(None, 30)
         output = my_font.render(text, True, WHITE)
         self._screen.blit(output, [x, y])
 
-    def draw(self):
+    def draw(self, pressed, left_stick, right_stick, triggers, pads):
         self._screen.fill(BLACK)
         pygame.draw.rect(self._screen, GREY, [40, 20, 520, 320], 3)
-
-        # joystick stuff
-        pressed = self._controller.get_buttons()
 
         a_btn = pressed[xbox.A]
         b_btn = pressed[xbox.B]
@@ -48,12 +47,10 @@ class Visualizer:
         lt_stick_btn = pressed[xbox.LEFT_STICK_BTN]
         rt_stick_btn = pressed[xbox.RIGHT_STICK_BTN]
 
-        lt_x, lt_y = self._controller.get_left_stick()
-        rt_x, rt_y = self._controller.get_right_stick()
+        lt_x, lt_y = left_stick
+        rt_x, rt_y = right_stick
 
-        triggers = self._controller.get_triggers()
-
-        pad_up, pad_right, pad_down, pad_left = self._controller.get_pad()
+        pad_up, pad_right, pad_down, pad_left = pads
 
         # game logic
 
@@ -193,6 +190,5 @@ class Visualizer:
         self.display_text("Down: {}".format(pad_down), x + 275, y + 200)
         self.display_text("Left: {}".format(pad_left), x + 275, y + 225)
 
-        pygame.display.flip()
         # update screen
         pygame.display.flip()

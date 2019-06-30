@@ -32,7 +32,7 @@ __all__ = ['do_slacker']
 
 @attr.s(cmp=False)
 class SlackerMode(StateMachine):
-    weight = attr.ib(converter=int)
+    mass = attr.ib(converter=int)
     peak_power_limit = attr.ib(converter=float)
 
     FLAT = 0x4E20
@@ -49,14 +49,16 @@ class SlackerMode(StateMachine):
         # Workaround to mesh attr and StateMachine
         super().__init__()
 
+        # Set initial values
+        self._watts = 0
+
+    def on_start(self):
+        log.info('Initializing XBox controller')
+
         # Short enough to be responsive but not so short as to ramp up CPU usage
         proxy = pm.get_plugin('proxy')
         proxy.timeout = 0.01
 
-        self.start()
-
-    def on_start(self):
-        log.info('Initializing XBox controller')
         pygame.init()
 
         try:
@@ -67,9 +69,11 @@ class SlackerMode(StateMachine):
             log.error('No XBox controller available for slacking!')
             sys.exit(-1)
 
-        self._viz = Visualizer(controller=self._controller)
+        self._viz = Visualizer()
 
     def on_stop(self):
+        proxy = pm.get_plugin('proxy')
+        proxy.timeout = 1
         pygame.quit()
 
     def make_flat(self, ant):
@@ -85,24 +89,32 @@ class SlackerMode(StateMachine):
                     )
         return ant
 
-    def enforce_peak_power_limit(self, ant):
-        if has_payload(ant, FitnessPayload) and self.peak_power_limit > 0:
-            if ant[FitnessPayload].data_page_number == 25:
-                limit = int(self.weight * self.peak_power_limit)
+    def set_power(self, ant):
+        'Apply the specified watts value to the FitnessPayload data page 25 packet'
 
-                if ant[FitnessPayload].instant_power > limit:
-                    log.warning(
-                        f'Limiting power to specified peak power limit of {self.peak_power_limit} w/kg ({limit} watts).'
+        if has_payload(ant, FitnessPayload):
+            if ant[FitnessPayload].data_page_number == 25:
+                if ant[FitnessPayload].instant_power != self._watts:
+                    log.debug(
+                        f'Updating FitnessPayload data page 25 to {self._watts} watts'
                     )
-                    ant[FitnessPayload].instant_power = min(
-                        ant[FitnessPayload].instant_power, limit
+                    ant[FitnessPayload].instant_power = max(
+                        ant[FitnessPayload].instant_power, self._watts
                     )
         return ant
 
-    # @hookimpl
+    def update_watts(self, triggers_raw):
+        'Map the stick value to watts'
+
+        new_value = max(int(triggers_raw * self.peak_power_limit * self.mass), 0)
+        if new_value != self._watts:
+            log.debug(f'Sweating out {new_value} watts now!')
+        self._watts = new_value
+
+    @hookimpl
     def usbq_device_modify(self, pkt):
         if is_ant(pkt):
-            for cheat in [self.enforce_peak_power_limit]:
+            for cheat in [self.set_power]:
                 pkt.content.data = ant_map(pkt.content.data, cheat)
 
     # @hookimpl
@@ -119,28 +131,41 @@ class SlackerMode(StateMachine):
             # captured.
             pygame.event.get()
 
+            # Read controller values
             buttons = self._controller.get_buttons()
-            # triggers = self._controller.get_triggers()
-            if any(buttons):
-                log.info('Controller button pressed')
+            triggers = self._controller.get_triggers()
+            left_stick = self._controller.get_left_stick()
+            right_stick = self._controller.get_right_stick()
+            pads = self._controller.get_pad()
 
-            self._viz.draw()
+            # Use controller values to control performance
+            self.update_watts(triggers)
+
+            self._viz.draw(buttons, left_stick, right_stick, triggers, pads)
             self._clock.tick()
 
     @hookimpl
+    def usbq_connected(self):
+        self.start()
+
+    @hookimpl
+    def usbq_disconnected(self):
+        if self.is_running:
+            self.stop()
+
+    @hookimpl
     def usbq_teardown(self):
-        self.stop()
+        if self.is_running:
+            self.stop()
 
 
 def do_slacker(params):
     plugins = usbq.opts.standard_plugin_options(**params) + [
         (
             'slacker',
-            {
-                'weight': params['weight'],
-                'peak_power_limit': params['peak_power_limit'],
-            },
-        )
+            {'mass': params['mass'], 'peak_power_limit': params['peak_power_limit']},
+        ),
+        ('lookfor', {'usb_id': params['usb_id']}),
     ]
     enable_plugins(pm, plugins)
     proxy = pm.get_plugin('proxy')
