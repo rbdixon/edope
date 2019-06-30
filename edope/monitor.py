@@ -65,8 +65,8 @@ class FitnessMonitor:
 
 def do_monitor(params):
     plugins = usbq.opts.standard_plugin_options(**params) + [
-        # ('antdump', {}),
-        ('monitor', {})
+        ('monitor', {}),
+        ('lookfor', {'usb_id': params['usb_id']}),
     ]
     enable_plugins(pm, plugins)
     proxy = pm.get_plugin('proxy')

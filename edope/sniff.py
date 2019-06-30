@@ -64,7 +64,10 @@ class AntSniff:
 
 
 def do_sniff(params):
-    plugins = usbq.opts.standard_plugin_options(**params) + [('antdump', {})]
+    plugins = usbq.opts.standard_plugin_options(**params) + [
+        ('antdump', {}),
+        ('lookfor', {'usb_id': params['usb_id']}),
+    ]
     enable_plugins(pm, plugins)
     proxy = pm.get_plugin('proxy')
     proxy.start()

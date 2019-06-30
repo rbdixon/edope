@@ -6,6 +6,8 @@ import sys
 import click
 import click_config_file
 import usbq.opts
+from usbq.opts import add_options
+from usbq.opts import usb_device_options
 from usbq.pm import AVAILABLE_PLUGINS
 from usbq.pm import enable_tracing
 
@@ -46,6 +48,7 @@ def main(ctx, debug, trace):
 @main.command()
 @usbq.opts.add_options(usbq.opts.network_options)
 @usbq.opts.add_options(usbq.opts.pcap_options)
+@add_options(usb_device_options)
 @click.pass_context
 def sniff(ctx, *args, **kwargs):
     'Sniff ANT+ to Zwift communications.'
@@ -56,6 +59,7 @@ def sniff(ctx, *args, **kwargs):
 @main.command()
 @usbq.opts.add_options(usbq.opts.network_options)
 @usbq.opts.add_options(usbq.opts.pcap_options)
+@add_options(usb_device_options)
 @click.pass_context
 def monitor(ctx, *args, **kwargs):
     'Monitor fitness telemetry sent Zwift communications.'
@@ -66,6 +70,7 @@ def monitor(ctx, *args, **kwargs):
 @main.command()
 @usbq.opts.add_options(usbq.opts.network_options)
 @usbq.opts.add_options(usbq.opts.pcap_options)
+@add_options(usb_device_options)
 @click.option(
     '--power-boost', default=2, type=float, help='Multiply your power by a factor.'
 )
@@ -97,6 +102,7 @@ def epo(ctx, *args, **kwargs):
 @main.command()
 @usbq.opts.add_options(usbq.opts.network_options)
 @usbq.opts.add_options(usbq.opts.pcap_options)
+@add_options(usb_device_options)
 @click.option(
     '--peak-power-limit',
     default=6.95,
