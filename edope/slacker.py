@@ -40,10 +40,13 @@ class SlackerMode(StateMachine):
     # States
     idle = State('idle', initial=True)
     running = State('running')
+    hold = State('hold')
 
     # Valid state transitions
     start = idle.to(running)
     stop = running.to(idle)
+    hold_on = running.to(hold)
+    hold_off = hold.to(running)
 
     def __attrs_post_init__(self):
         # Workaround to mesh attr and StateMachine
@@ -51,6 +54,7 @@ class SlackerMode(StateMachine):
 
         # Set initial values
         self._watts = 0
+        self._detected = False
 
     def on_start(self):
         log.info('Initializing XBox controller')
@@ -125,24 +129,41 @@ class SlackerMode(StateMachine):
 
     @hookimpl
     def usbq_tick(self):
-        if self.is_running:
+        if not self.is_idle:
             # No event processing but must call
             # to ensure that controller events are
             # captured.
-            pygame.event.get()
+            for event in pygame.event.get():
+                # Read controller values
+                buttons = self._controller.get_buttons()
+                triggers = self._controller.get_triggers()
+                left_stick = self._controller.get_left_stick()
+                right_stick = self._controller.get_right_stick()
+                pads = self._controller.get_pad()
 
-            # Read controller values
-            buttons = self._controller.get_buttons()
-            triggers = self._controller.get_triggers()
-            left_stick = self._controller.get_left_stick()
-            right_stick = self._controller.get_right_stick()
-            pads = self._controller.get_pad()
+                # Use controller values to control performance
+                if not self.is_hold:
+                    self.update_watts(triggers)
 
-            # Use controller values to control performance
-            self.update_watts(triggers)
+                if event.type == pygame.JOYBUTTONDOWN:
+                    if buttons[xbox.A]:
+                        if self.is_hold:
+                            log.info('Cruise control off')
+                            self.hold_off()
+                        else:
+                            log.info('Cruise control on')
+                            self.hold_on()
 
-            self._viz.draw(buttons, left_stick, right_stick, triggers, pads)
+                self._viz.draw(buttons, left_stick, right_stick, triggers, pads)
+
             self._clock.tick()
+
+    @hookimpl
+    def usbq_log_pkt(self, pkt):
+        if is_ant(pkt):
+            if not self._detected:
+                log.info('ANT+ protocol messages detected')
+                self._detected = True
 
     @hookimpl
     def usbq_connected(self):
@@ -150,12 +171,12 @@ class SlackerMode(StateMachine):
 
     @hookimpl
     def usbq_disconnected(self):
-        if self.is_running:
+        if not self.is_idle:
             self.stop()
 
     @hookimpl
     def usbq_teardown(self):
-        if self.is_running:
+        if not self.is_idle:
             self.stop()
 
 
