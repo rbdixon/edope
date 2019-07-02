@@ -10,8 +10,4 @@ def is_ant(pkt):
 
 
 def has_payload(pkt, cls):
-    try:
-        pkt[cls]
-        return True
-    except IndexError:
-        return False
+    return cls in pkt
